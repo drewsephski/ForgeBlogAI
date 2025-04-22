@@ -30,10 +30,14 @@ export const CodeAssistant = ({ code, description }: CodeAssistantProps) => {
       });
 
       if (error) throw error;
+      if (!data?.choices?.[0]?.message?.content) {
+        throw new Error('Invalid response format from AI');
+      }
 
       setResponse(data.choices[0].message.content);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to get AI response');
+      console.error('AI Assistant Error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +49,7 @@ export const CodeAssistant = ({ code, description }: CodeAssistantProps) => {
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-4">
             <Code className="h-5 w-5 text-accent" />
-            <h2 className="text-lg font-semibold">AI Coding Assistant</h2>
+            <h2 className="text-lg font-semibold">AI Coding Assistant (Gemini)</h2>
           </div>
           
           <div className="space-y-4">
@@ -80,7 +84,7 @@ export const CodeAssistant = ({ code, description }: CodeAssistantProps) => {
 
           {response && (
             <div className="mt-4 p-4 bg-muted rounded-lg">
-              <pre className="whitespace-pre-wrap">{response}</pre>
+              <pre className="whitespace-pre-wrap break-words">{response}</pre>
             </div>
           )}
         </CardContent>

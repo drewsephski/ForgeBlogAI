@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import "https://deno.land/x/xhr@0.1.0/mod.ts"
 
-const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY')
+const GOOGLE_API_KEY = Deno.env.get('GOOGLE_API_KEY')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,26 +17,28 @@ serve(async (req) => {
   try {
     const { prompt } = await req.json()
 
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
         'Content-Type': 'application/json',
+        'x-goog-api-key': GOOGLE_API_KEY as string,
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert coding assistant. Provide clear, concise code explanations and examples.'
-          },
+        contents: [
           {
             role: 'user',
-            content: prompt
+            parts: [{ text: `You are an expert coding assistant. Help explain or improve this code.
+
+Context:
+${prompt}
+
+Provide clear, concise explanations and examples.` }]
           }
         ],
-        temperature: 0.2,
-        max_tokens: 1000,
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 1000,
+        },
       }),
     })
 
@@ -45,7 +47,11 @@ serve(async (req) => {
     }
 
     const data = await response.json()
-    return new Response(JSON.stringify(data), {
+    
+    // Extract the response text from Gemini's specific response format
+    const generatedText = data.candidates[0].content.parts[0].text
+
+    return new Response(JSON.stringify({ choices: [{ message: { content: generatedText } }] }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
