@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Wand2, Search, ArrowRight, Check } from "lucide-react";
+import { CodeAssistant } from "@/components/CodeAssistant";
 
 const Editor = () => {
   const [promptValue, setPromptValue] = useState("");
@@ -102,10 +102,11 @@ Start using Hooks in your new components, and gradually migrate your existing on
         </div>
         
         <Tabs defaultValue="editor" className="w-full">
-          <TabsList className="grid w-full md:w-auto grid-cols-3">
+          <TabsList className="grid w-full md:w-auto grid-cols-4">
             <TabsTrigger value="editor">Editor</TabsTrigger>
             <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="seo">SEO</TabsTrigger>
+            <TabsTrigger value="assistant">Assistant</TabsTrigger>
           </TabsList>
           
           <TabsContent value="editor" className="space-y-6">
@@ -264,6 +265,13 @@ Start using Hooks in your new components, and gradually migrate your existing on
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="assistant" className="space-y-6">
+            <CodeAssistant 
+              code={blogContent}
+              description={blogTitle}
+            />
           </TabsContent>
         </Tabs>
       </div>
